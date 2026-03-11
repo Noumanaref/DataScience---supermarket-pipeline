@@ -1,0 +1,14 @@
+pandas
+numpy
+matplotlib
+seaborn
+streamlit
+plotly
+nbformat
+requests
+loguru
+fake_useragent
+beautifulsoup4
+rapidfuzz
+scipy
+pathlib
