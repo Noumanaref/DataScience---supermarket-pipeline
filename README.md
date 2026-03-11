@@ -6,6 +6,8 @@
 ![Selenium](https://img.shields.io/badge/-selenium-%43B02A?style=for-the-badge&logo=selenium&logoColor=white)
 ![Jupyter Notebook](https://img.shields.io/badge/jupyter-%23FA0F00.svg?style=for-the-badge&logo=jupyter&logoColor=white)
 
+### 🚀 [Live Dashboard Demo](https://market-nexus.streamlit.app/)
+
 A production-grade, modular data engineering and analytics pipeline for monitoring grocery price dynamics across major Pakistani supermarket chains.
 
 ## 🏗️ System Architecture
