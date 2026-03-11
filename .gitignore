@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+ENV/
+.env
+
+# Data Lake (Excluding raw/large datasets)
+data/raw/
+data/processed/cleaned_data_full.csv
+*.db
+*.sqlite3
+
+# Logs
+logs/
+*.log
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+notebooks/.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
