@@ -96,4 +96,4 @@ This project has undergone rigorous QA, meeting the following targets:
 - ✅ Fully re-runnable pipeline architecture.
 
 ---
-*Created for the Data Science Assignment - Spring 2026*
+
