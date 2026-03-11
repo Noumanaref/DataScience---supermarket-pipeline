@@ -3,10 +3,17 @@ import plotly.express as px
 import plotly.graph_objects as go
 from src.visualization.components.styles import apply_nexus_styles
 from src.visualization.components.interpretations import interpret_dispersion_market
+from src.config.settings import DATA_DIR
+from src.visualization.components.loader import load_nexus_data
+
 def show():
     if 'nexus_df' not in st.session_state:
-        st.error("Data Context Lost. Please restart the application.")
-        return
+        df = load_nexus_data(DATA_DIR)
+        if df is not None:
+            st.session_state['nexus_df'] = df
+        else:
+            st.error("Data Context Lost and could not be reloaded. Please visit the Executive Dashboard first.")
+            return
 
     df = st.session_state['nexus_df']
     

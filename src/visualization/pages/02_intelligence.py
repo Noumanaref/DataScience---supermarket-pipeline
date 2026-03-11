@@ -2,10 +2,17 @@ import streamlit as st
 import pandas as pd
 from src.visualization.components.interpretations import interpret_product_search
 
+from src.config.settings import DATA_DIR
+from src.visualization.components.loader import load_nexus_data
+
 def show():
     if 'nexus_df' not in st.session_state:
-        st.error("Data Context Lost.")
-        return
+        df = load_nexus_data(DATA_DIR)
+        if df is not None:
+            st.session_state['nexus_df'] = df
+        else:
+            st.error("Data Context Lost.")
+            return
 
     df = st.session_state['nexus_df']
     
