@@ -30,6 +30,20 @@ if df is None:
     st.error("📉 Nexus Offline: Data Match Engine required. Run matching pipeline.")
     st.stop()
 
+# --- GLOBAL ANALYTICS SYNC ---
+st.sidebar.markdown("### 🌐 Market Context")
+all_cities = sorted(df['city'].unique())
+if 'selected_city' not in st.session_state:
+    st.session_state['selected_city'] = all_cities[0]
+
+selected_city = st.sidebar.selectbox(
+    "Active Territory", 
+    all_cities, 
+    index=all_cities.index(st.session_state['selected_city']),
+    key="global_city_sync"
+)
+st.session_state['selected_city'] = selected_city
+
 # --- MULTI-PAGE NAVIGATION ---
 # Note: Streamlit Page paths are relative to the file where st.navigation is called
 pages = {

@@ -15,9 +15,11 @@ def show():
             st.error("Data Context Lost and could not be reloaded. Please visit the Executive Dashboard first.")
             return
 
+    selected_city = st.session_state.get('selected_city', 'Lahore')
     df = st.session_state['nexus_df']
+    df = df[df['city'] == selected_city] # Apply global filter
     
-    st.markdown("<h1>Operational Overview</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1>Operational Overview: {selected_city}</h1>", unsafe_allow_html=True)
     
     # Hero Metrics
     col1, col2, col3, col4 = st.columns(4)

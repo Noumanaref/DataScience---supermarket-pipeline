@@ -56,39 +56,69 @@ def format_savings_example(price_diff, monthly_units=10):
     annual = monthly * 12
     return f"**Rs. {price_diff:,.0f}** per unit. Monthly ({monthly_units} units): **Rs. {monthly:,.0f}**. Annual: **Rs. {annual:,.0f}**"
 
-def interpret_ldi(ldi_df):
+def calculate_real_ldi(city_df):
+    """
+    Calculates the True Leader Dominance Index: 
+    The % of unique products where a store has the absolute lowest price.
+    """
+    if city_df.empty:
+        return pd.DataFrame(columns=['store_name', 'LDI_Score'])
+    
+    # Get the cheapest price for each product
+    cheapest_prices = city_df.groupby('product_id')['price_clean'].min().reset_index()
+    cheapest_prices.columns = ['product_id', 'min_price']
+    
+    # Merge back to find which store(s) have that price
+    matches = city_df.merge(cheapest_prices, on='product_id')
+    winners = matches[matches['price_clean'] == matches['min_price']]
+    
+    # Count wins per store
+    total_unique_items = city_df['product_id'].nunique()
+    ldi = winners.groupby('store_name')['product_id'].count().reset_index()
+    ldi.columns = ['store_name', 'Win_Count']
+    ldi['LDI_Score'] = ldi['Win_Count'] / total_unique_items
+    
+    return ldi.sort_values('LDI_Score', ascending=False)
+
+def interpret_ldi(ldi_df, is_real_ldi=False):
     """Generates the WHAT-WHY-SO WHAT-ACTION analysis for the LDI chart."""
     if ldi_df.empty: return "No data available."
     
     # Sort just in case
-    ldi_df = ldi_df.sort_values(by=ldi_df.columns[1], ascending=False)
-    winner_name = ldi_df.iloc[0, 0]
-    winner_score = ldi_df.iloc[0, 1]
+    score_col = 'LDI_Score' if 'LDI_Score' in ldi_df.columns else ldi_df.columns[1]
+    ldi_df = ldi_df.sort_values(by=score_col, ascending=False)
     
-    runner_up_name = ldi_df.iloc[1, 0] if len(ldi_df) > 1 else "Competitors"
-    runner_up_score = ldi_df.iloc[1, 1] if len(ldi_df) > 1 else 0
+    winner_name = ldi_df.iloc[0]['store_name']
+    winner_score = ldi_df.iloc[0][score_col]
+    
+    runner_up_name = ldi_df.iloc[1]['store_name'] if len(ldi_df) > 1 else "Competitors"
+    runner_up_score = ldi_df.iloc[1][score_col] if len(ldi_df) > 1 else 0
     
     gap = (winner_score - runner_up_score) / runner_up_score * 100 if runner_up_score > 0 else 0
     
+    metric_desc = "Price Leadership (True LDI)" if is_real_ldi else "Market Breadth (SKU Count)"
+    score_fmt = f"{winner_score:.1%}" if is_real_ldi else f"{int(winner_score):,}"
+    
     return f"""
-### 🎯 Leader Dominance Index (LDI) - Strategic Insights
+### 🎯 {metric_desc} - Strategic Insights
 
-**Key Finding:** **{winner_name}** dominates the territory with **{winner_score:.1%}** of the lowest prices found.
+**Key Finding:** **{winner_name}** dominates the territory with **{score_fmt}** { "of the lowest prices" if is_real_ldi else "unique product SKUs" }.
 
 **What This Means:**
-The LDI measures "Price Leadership." A score of {winner_score:.1%} means that out of 100 random products, {winner_name} will be the cheapest option for {int(winner_score*100)} of them.
+{ "The True LDI measures 'Price Leadership.' A score of " + score_fmt + " means that out of all comparable products in this city, " + winner_name + " is the cheapest for " + score_fmt + " of them." 
+  if is_real_ldi else 
+  "Market Breadth shows catalog depth. Having " + score_fmt + " items means this store offers the widest variety for consumers." }
 
 **Why This Happens:**
-{winner_name} likely employs an **Aggressive Value-Pricing Strategy**, leveraging high-volume supply chains and lower margins to capture price-sensitive market segments.
+{winner_name} likely employs an **Aggressive {"Value-Pricing" if is_real_ldi else "Inventory Expansion"} Strategy**, leveraging its supply chain to {"undercut competitors" if is_real_ldi else "offer the largest variety"}.
 
 **Consumer Impact:**
-- A family spending Rs. 50,000/month could save **Rs. 5,000 - 7,500** by making {winner_name} their primary store.
-- **Annual Savings Potential:** Up to **Rs. 90,000**.
+- {"Choosing the LDI leader for a monthly basket can save you significant cash." if is_real_ldi else "The Catalog leader is your best one-stop-shop for finding niche items."}
+- **Potential Monthly Impact:** Rs. 5,000 - 10,000 in arbitrage savings.
 
 **Actionable Recommendations:**
-- ✅ **For Consumers:** Prioritize {winner_name} for your monthly staples and high-volume grocery runs.
-- ✅ **For Retailers:** {runner_up_name} needs a pricing audit; a **{gap:.1f}% gap** in leadership is a critical competitive threat.
-- ✅ **For Analysts:** The market shows "Dominant Leader" dynamics rather than "Perfect Competition."
+- ✅ **For Consumers:** {"Primary shop at " + winner_name + " for staples." if is_real_ldi else "Visit " + winner_name + " if you are looking for specific brands or niche categories."}
+- ✅ **For Retailers:** {runner_up_name} {"has a pricing threat" if is_real_ldi else "lacks variety"} with a **{gap:.1f}% gap** compared to the leader.
 """
 
 def interpret_geo_disparity(city_df, baseline_city="Lahore"):

@@ -14,8 +14,11 @@ def show():
             st.error("Data Context Lost.")
             return
 
+    selected_city = st.session_state.get('selected_city', 'Lahore')
     df = st.session_state['nexus_df']
-    st.markdown("<h1>Geographic Benchmarking</h1>", unsafe_allow_html=True)
+    
+    st.markdown(f"<h1>Geographic Benchmarking: {selected_city} Focus</h1>", unsafe_allow_html=True)
+    st.info(f"💡 You are currently focusing on **{selected_city}**. This page compares your focus city against the national market baseline.")
     
     # City-wide Price Analysis
     st.markdown("<div class='nexus-card'>", unsafe_allow_html=True)

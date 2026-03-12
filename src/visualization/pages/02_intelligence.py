@@ -16,16 +16,15 @@ def show():
 
     df = st.session_state['nexus_df']
     
-    st.markdown("<h1>Identity Intelligence & Discovery</h1>", unsafe_allow_html=True)
+    selected_city = st.session_state.get('selected_city', 'Lahore')
+    df = st.session_state['nexus_df']
     
-    # Filters
-    f_col1, f_col2 = st.columns(2)
-    with f_col1:
-        city = st.selectbox("Market Territory", sorted(df['city'].unique()))
-    with f_col2:
-        category = st.selectbox("Asset Sector", ["All Sectors"] + sorted(df['category_normalized'].unique().tolist()))
+    st.markdown(f"<h1>Identity Intelligence: {selected_city}</h1>", unsafe_allow_html=True)
     
-    cdf = df[df['city'] == city]
+    # Category Filter only
+    category = st.selectbox("Asset Sector", ["All Sectors"] + sorted(df['category_normalized'].unique().tolist()))
+    
+    cdf = df[df['city'] == selected_city]
     if category != "All Sectors":
         cdf = cdf[cdf['category_normalized'] == category]
 

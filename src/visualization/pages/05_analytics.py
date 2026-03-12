@@ -17,17 +17,20 @@ def show():
             st.error("Data Context Lost.")
             return
 
+    selected_city = st.session_state.get('selected_city', 'Lahore')
     df = st.session_state['nexus_df']
-    st.markdown("<h1>Advanced Analytics Suite</h1>", unsafe_allow_html=True)
+    df_city = df[df['city'] == selected_city] # Context for city-specific dispersion
+    
+    st.markdown(f"<h1>Advanced Analytics Suite: {selected_city}</h1>", unsafe_allow_html=True)
     
     st.markdown("<div class='nexus-card'>", unsafe_allow_html=True)
     st.subheader("Price Dispersion Analysis")
-    st.write("Visualizing the spread and volatility of prices across all matched product cohorts.")
+    st.write(f"Visualizing price volatility across matched product cohorts in {selected_city}.")
     
     # Filter for products in multiple stores for variance analysis
-    multi_store = df.groupby('product_id')['store_name'].nunique().reset_index()
+    multi_store = df_city.groupby('product_id')['store_name'].nunique().reset_index()
     valid_ids = multi_store[multi_store['store_name'] > 1]['product_id']
-    vdf = df[df['product_id'].isin(valid_ids)]
+    vdf = df_city[df_city['product_id'].isin(valid_ids)]
 
     fig_disp = px.strip(vdf.sample(min(2000, len(vdf))), x='store_name', y='price_clean', color='store_name',
                        template="plotly_dark", stripmode="overlay", title="Price Point Distribution (Sampled)")
